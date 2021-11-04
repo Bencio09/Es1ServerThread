@@ -3,11 +3,11 @@ package com.itismeucci.bencini;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
+
 import java.net.Socket;
 
 public class ServerThread extends Thread{
-    ServerSocket server = null;
+    MultiServer multiServer = null;
     Socket client = null;
     String stringaRicevuta = null;
     String stringaModificata = null;
@@ -15,15 +15,18 @@ public class ServerThread extends Thread{
     DataOutputStream outVersoClient;
 
 
-    public ServerThread(Socket socket){
+    public ServerThread(Socket socket, MultiServer multiServer ){
         this.client = socket;
+        this.multiServer = multiServer;
     }
+
+
 
     public void run(){
         try {
             comunica();
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+           System.out.println("Server chiuso da un altro thread" + '\n');
         }
     }
 
@@ -37,12 +40,27 @@ public class ServerThread extends Thread{
                 outVersoClient.writeBytes(stringaRicevuta+"=> SERVER IN CHIUSURA" + '\n');
                 System.out.println("Echo sul server di chiusura: " + stringaRicevuta);
                 break;
+            } else if(stringaRicevuta.equals("STOP")){
+                
+                System.out.println("Echo sul server di chiusura: " + stringaRicevuta);
+                outVersoClient.writeBytes(stringaRicevuta+"=> IL SERVER STA PER ESSERE STOPPATO" + '\n');
+                outVersoClient.writeBytes("FERMATI");
+                multiServer.stop();
+                break;
             }
             else{
-                outVersoClient.writeBytes(stringaRicevuta+" (ricevuta e trasmessa)" + '\n');
+                stringaModificata = stringaRicevuta.toUpperCase();
+                outVersoClient.writeBytes(stringaModificata+" (ricevuta e trasmessa)" + '\n');
                 System.out.println("6 Echo sul server: " + stringaRicevuta);
             }
         }
+        if(stringaRicevuta.equals("FINE")) {
+           close();
+        }
+    }
+
+
+    public void close() throws Exception{
         outVersoClient.close();
         inDalClient.close();
         System.out.println("9 Chiusura socket" + client);
