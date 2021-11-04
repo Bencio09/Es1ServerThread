@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MultiServer {
 
-    List<ServerThread> threadList = new ArrayList<>();
+    ArrayList<ServerThread> threadList = new ArrayList<>();
     ServerSocket serverSocket = null;
 
     public void start(){
